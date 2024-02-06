@@ -97,7 +97,7 @@ class AuditlogModelRegistry:
         if include_fields is None:
             include_fields = []
         if exclude_fields is None:
-            exclude_fields = []
+            exclude_fields = getattr(settings, "AUDITLOG_COMMON_EXCLUDE_TRACKING_FIELDS", [])
         if mapping_fields is None:
             mapping_fields = {}
         if mask_fields is None:

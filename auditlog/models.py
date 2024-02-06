@@ -17,7 +17,7 @@ from django.core.exceptions import (
     ValidationError,
 )
 from django.db import DEFAULT_DB_ALIAS, models
-from django.db.models import Q, QuerySet
+from django.db.models import Q, QuerySet, ManyToManyField
 from django.utils import formats
 from django.utils import timezone as django_timezone
 from django.utils.encoding import smart_str
@@ -450,6 +450,9 @@ class LogEntry(models.Model):
             except FieldDoesNotExist:
                 changes_display_dict[field_name] = values
                 continue
+            else:
+                if isinstance(field, models.fields.reverse_related.ManyToOneRel):
+                    continue
             values_display = []
             # handle choices fields and Postgres ArrayField to get human-readable version
             choices_dict = None
@@ -458,7 +461,9 @@ class LogEntry(models.Model):
             if getattr(getattr(field, "base_field", None), "choices", []):
                 choices_dict = dict(field.base_field.choices)
 
-            if choices_dict:
+            if isinstance(field, ManyToManyField):
+                values_display = values
+            elif choices_dict:
                 for value in values:
                     try:
                         value = ast.literal_eval(value)
@@ -504,7 +509,7 @@ class LogEntry(models.Model):
             verbose_name = model_fields["mapping_fields"].get(
                 field.name, getattr(field, "verbose_name", field.name)
             )
-            changes_display_dict[verbose_name] = values_display
+            changes_display_dict[f"{field_name}:{verbose_name}"] = values_display
         return changes_display_dict
 
     def _get_changes_display_for_fk_field(

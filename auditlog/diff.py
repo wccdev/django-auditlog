@@ -62,6 +62,7 @@ def get_field_value(obj, field):
     :return: The value of the field as a string.
     :rtype: str
     """
+    display_value = None
     try:
         if isinstance(field, DateTimeField):
             # DateTimeFields are timezone-aware, so we need to convert the field
@@ -80,6 +81,7 @@ def get_field_value(obj, field):
             value = smart_str(
                 getattr(obj, field.get_attname(), None), strings_only=True
             )
+            display_value = smart_str(getattr(obj, field.name, None))
         else:
             value = smart_str(getattr(obj, field.name, None))
     except ObjectDoesNotExist:
@@ -89,7 +91,7 @@ def get_field_value(obj, field):
             else None
         )
 
-    return value
+    return value, display_value or value
 
 
 def mask_str(value: str) -> str:
@@ -180,17 +182,17 @@ def model_instance_diff(
         fields = filtered_fields
 
     for field in fields:
-        old_value = get_field_value(old, field)
-        new_value = get_field_value(new, field)
+        old_value, old_display_value = get_field_value(old, field)
+        new_value, new_display_value = get_field_value(new, field)
 
         if old_value != new_value:
             if model_fields and field.name in model_fields["mask_fields"]:
                 diff[field.name] = (
-                    mask_str(smart_str(old_value)),
-                    mask_str(smart_str(new_value)),
+                    mask_str(smart_str(old_display_value or old_value)),
+                    mask_str(smart_str(new_display_value or new_value)),
                 )
             else:
-                diff[field.name] = (smart_str(old_value), smart_str(new_value))
+                diff[field.name] = (smart_str(old_display_value or old_value), smart_str(new_display_value or new_value))
 
     if len(diff) == 0:
         diff = None
