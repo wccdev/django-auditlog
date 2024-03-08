@@ -377,6 +377,16 @@ class LogEntry(models.Model):
     additional_data = models.JSONField(
         blank=True, null=True, verbose_name=_("additional data")
     )
+    path = models.CharField(
+        max_length=255,
+        db_index=True,
+        blank=True,
+        null=True,
+        verbose_name=_("path"),
+    )
+    domain_object_id = models.BigIntegerField(
+        blank=True, db_index=True, null=True, verbose_name=_("domain object id")
+    )
 
     objects = LogEntryManager()
 

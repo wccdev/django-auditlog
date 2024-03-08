@@ -13,12 +13,14 @@ auditlog_disabled = ContextVar("auditlog_disabled", default=False)
 
 
 @contextlib.contextmanager
-def set_actor(actor, remote_addr=None):
+def set_actor(actor, remote_addr=None, path=None, domain_object_id=None):
     """Connect a signal receiver with current user attached."""
     # Initialize thread local storage
     context_data = {
         "signal_duid": ("set_actor", time.time()),
         "remote_addr": remote_addr,
+        "path": path,
+        "domain_object_id": domain_object_id,
     }
     auditlog_value.set(context_data)
 
@@ -63,6 +65,8 @@ def _set_actor(user, sender, instance, signal_duid, **kwargs):
             instance.actor = user
 
         instance.remote_addr = auditlog["remote_addr"]
+        instance.path = auditlog["path"]
+        instance.domain_object_id = auditlog["domain_object_id"]
 
 
 @contextlib.contextmanager

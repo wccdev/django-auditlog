@@ -37,11 +37,26 @@ class AuditlogMiddleware:
             return user
         return None
 
+    @staticmethod
+    def _get_path_info(request):
+        path_info = getattr(request, "path_info", "")
+        path_info = path_info.split("/")
+        try:
+            path = path_info[2]
+        except IndexError:
+            path = None
+        try:
+            domain_object_id = path_info[3] if path_info[3].isnumeric() else None
+        except IndexError:
+            domain_object_id = None
+        return path, domain_object_id
+
     def __call__(self, request):
         remote_addr = self._get_remote_addr(request)
         user = self._get_actor(request)
+        path, domain_object_id = self._get_path_info(request)
 
         set_cid(request)
 
-        with set_actor(actor=user, remote_addr=remote_addr):
+        with set_actor(actor=user, remote_addr=remote_addr, path=path, domain_object_id=domain_object_id):
             return self.get_response(request)
