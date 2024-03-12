@@ -101,7 +101,7 @@ def log_access(sender, instance, **kwargs):
 
 
 def _create_log_entry(
-    action, instance, sender, diff_old, diff_new, fields_to_check=None, force_log=False
+    action, instance, sender, diff_old, diff_new, fields_to_check=None, force_log=False, is_approval=False
 ):
     pre_log_results = pre_log.send(
         sender,
@@ -126,6 +126,7 @@ def _create_log_entry(
                 action=action,
                 changes=changes,
                 force_log=force_log,
+                is_approval=is_approval
             )
     except BaseException as e:
         error = e

@@ -74,6 +74,7 @@ class LogEntryManager(models.Manager):
 
             # set correlation id
             kwargs.setdefault("cid", get_cid())
+            kwargs.setdefault("code", getattr(instance, "code", None))
             return self.create(**kwargs)
         return None
 
@@ -126,6 +127,7 @@ class LogEntryManager(models.Manager):
             }
 
             kwargs.setdefault("cid", get_cid())
+            kwargs.setdefault("code", getattr(instance, "code", None))
             return self.create(**kwargs)
 
         return None
@@ -387,6 +389,15 @@ class LogEntry(models.Model):
     domain_object_id = models.BigIntegerField(
         blank=True, db_index=True, null=True, verbose_name=_("domain object id")
     )
+    is_approval = models.BooleanField(
+        blank=True, null=True, default=False, verbose_name=_("is approval")
+    )
+    code = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name=_("code"),
+    )
 
     objects = LogEntryManager()
 
@@ -460,8 +471,10 @@ class LogEntry(models.Model):
             # try to get the field attribute on the model
             try:
                 field = model._meta.get_field(field_name)
+                is_relation = field.is_relation
             except FieldDoesNotExist:
-                changes_display_dict[field_name] = values
+                is_relation = False
+                changes_display_dict[f"{is_relation}:{field_name}:{field_name}"] = values
                 continue
             else:
                 if isinstance(field, models.fields.reverse_related.ManyToOneRel):
@@ -526,7 +539,7 @@ class LogEntry(models.Model):
             else:
                 verbose_name = getattr(field, "verbose_name", field.name)
 
-            changes_display_dict[f"{field_name}:{verbose_name}"] = values_display
+            changes_display_dict[f"{is_relation}:{field_name}:{verbose_name}"] = values_display
         return changes_display_dict
 
     def _get_changes_display_for_fk_field(

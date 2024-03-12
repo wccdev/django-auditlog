@@ -8,7 +8,7 @@ with open(os.path.join(os.path.dirname(__file__), "README.md")) as readme_file:
 
 setup(
     name="wcc-django-auditlog",
-    version="3.0.1",
+    version="3.0.3",
     use_scm_version={"version_scheme": "post-release"},
     setup_requires=["setuptools_scm"],
     packages=[
