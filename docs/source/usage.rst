@@ -206,6 +206,19 @@ It will be considered when ``AUDITLOG_INCLUDE_ALL_MODELS`` is `True`.
 
 .. versionadded:: 3.0.0
 
+**AUDITLOG_EXCLUDE_TRACKING_FIELDS**
+
+When using "AuditlogMiddleware",
+the IP address is logged by default, you can use this setting
+to exclude the IP address from logging.
+It will be considered when ``AUDITLOG_DISABLE_REMOTE_ADDR`` is `True`.
+
+.. code-block:: python
+
+    AUDITLOG_DISABLE_REMOTE_ADDR = True
+
+.. versionadded:: 3.0.0
+
 **AUDITLOG_EXCLUDE_TRACKING_MODELS**
 
 You can use this setting to exclude models in registration process.
@@ -233,7 +246,7 @@ It must be a list or tuple. Each item in this setting can be a:
     AUDITLOG_INCLUDE_TRACKING_MODELS = (
         "<appname>.<model1>",
         {
-            "model": "<appname>.<model1>",
+            "model": "<appname>.<model2>",
             "include_fields": ["field1", "field2"],
             "exclude_fields": ["field3", "field4"],
             "mapping_fields": {
