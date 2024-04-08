@@ -1,8 +1,15 @@
+import threading
+
 from django.contrib.auth import get_user_model
 
 from auditlog.cid import set_cid
 from auditlog.context import set_actor
 
+_thread_locals = threading.local()
+
+
+def get_current_request():
+    return getattr(_thread_locals, "current_request", None)
 
 class AuditlogMiddleware:
     """
@@ -52,6 +59,8 @@ class AuditlogMiddleware:
         return path, domain_object_id
 
     def __call__(self, request):
+        _thread_locals.current_request = request
+
         remote_addr = self._get_remote_addr(request)
         user = self._get_actor(request)
         path, domain_object_id = self._get_path_info(request)

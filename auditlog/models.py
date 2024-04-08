@@ -389,8 +389,8 @@ class LogEntry(models.Model):
     domain_object_id = models.BigIntegerField(
         blank=True, db_index=True, null=True, verbose_name=_("domain object id")
     )
-    is_approval = models.BooleanField(
-        blank=True, null=True, default=False, verbose_name=_("is approval")
+    approval_id = models.BigIntegerField(
+        blank=True, null=True, verbose_name=_("approval id")
     )
     code = models.CharField(
         max_length=255,
