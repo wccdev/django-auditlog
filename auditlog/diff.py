@@ -84,6 +84,8 @@ def get_field_value(obj, field):
             display_value = smart_str(getattr(obj, field.name, None))
         else:
             value = smart_str(getattr(obj, field.name, None))
+            if type(value).__name__ == "__proxy__":
+                value = str(value)
     except ObjectDoesNotExist:
         value = (
             field.default
